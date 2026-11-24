@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>FATEC HUB – Protótipo</title>
+<style>
+:root{--bg:#e9eef6;--ink:#10203a;--mut:#6b7a90;--blue:#0a5fe0;--blue2:#e6efff;--line:#e3e8f0;--card:#fff;--ok:#12a150;--bad:#e5484d;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0d1420}}
+*{box-sizing:border-box;margin:0}
+html,body{height:100%}
+body{background:var(--bg);font-family:"Segoe UI",system-ui,-apple-system,Roboto,sans-serif;color:var(--ink);display:flex;align-items:center;justify-content:center;gap:32px;padding:16px}
+.phone{width:375px;height:760px;max-height:100%;background:#fff;border:10px solid #111a2b;border-radius:44px;overflow:hidden;position:relative;display:flex;flex-direction:column;box-shadow:0 20px 50px rgba(10,30,70,.25)}
+.status{display:flex;justify-content:space-between;padding:10px 22px 4px;font-size:12px;font-weight:600}
+.screen{display:none;flex:1;min-height:0;flex-direction:column}
+.screen.on{display:flex}
+.body{flex:1;overflow-y:auto;padding:8px 16px 12px}
+.top{display:flex;align-items:center;gap:8px;padding:6px 16px 8px;font-weight:700;font-size:18px}
+.top.center{justify-content:center;position:relative}
+.top button{background:none;border:0;cursor:pointer;color:var(--ink);display:flex;padding:4px}
+h1{font-size:22px}
+svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.brand{color:var(--ink);font-weight:800;letter-spacing:-.5px}.brand b{color:var(--blue)}
+.search{display:flex;align-items:center;gap:8px;background:#f1f4f9;border-radius:12px;padding:10px 12px;color:var(--mut);font-size:14px;margin-bottom:10px}
+.search input{border:0;background:none;outline:0;flex:1;font:inherit;color:var(--ink)}
+.seg{display:flex;background:#f1f4f9;border-radius:12px;padding:3px;margin-bottom:10px}
+.seg button{flex:1;border:0;background:none;padding:8px;border-radius:10px;font:600 14px inherit;font-family:inherit;color:var(--mut);cursor:pointer}
+.seg button.on{background:var(--blue);color:#fff}
+.post{border:1px solid var(--line);border-radius:14px;padding:12px;margin-bottom:10px}
+.who{display:flex;gap:10px;align-items:center;margin-bottom:8px}
+.av{width:36px;height:36px;border-radius:50%;background:#d5dce8;flex:none;display:grid;place-items:center;color:#55657d;font-weight:700;font-size:14px}
+.av.b{background:var(--blue2);color:var(--blue)}
+.who small{display:block;color:var(--mut);font-size:12px}.who strong{font-size:14px}
+.post p{font-size:14px;line-height:1.4;margin-bottom:8px}
+.acts{display:flex;gap:16px;color:var(--mut);font-size:13px}
+.acts button{background:none;border:0;display:flex;gap:5px;align-items:center;color:inherit;font:inherit;cursor:pointer}
+.acts button.liked{color:var(--bad)}.acts button.liked svg{fill:var(--bad)}
+.nav{display:flex;border-top:1px solid var(--line);padding:8px 0 10px;background:#fff}
+.nav button{flex:1;background:none;border:0;display:flex;flex-direction:column;align-items:center;gap:2px;font:11px inherit;font-family:inherit;color:var(--mut);cursor:pointer}
+.nav button.on{color:var(--blue);font-weight:600}.nav button.on svg{fill:var(--blue2)}
+.row{display:flex;gap:12px;align-items:center;padding:12px 4px;border-bottom:1px solid var(--line);cursor:pointer;width:100%;background:none;border-left:0;border-right:0;border-top:0;text-align:left;font:inherit;color:inherit}
+.row .t{flex:1;min-width:0}.row .t strong{display:block;font-size:14px}.row .t span{font-size:13px;color:var(--mut)}
+.row time{font-size:12px;color:var(--mut)}
+.fab{position:absolute;right:18px;bottom:78px;width:48px;height:48px;border-radius:50%;background:var(--blue);color:#fff;border:0;display:grid;place-items:center;box-shadow:0 6px 16px rgba(10,95,224,.4);cursor:pointer}
+.btn{display:block;width:100%;background:var(--blue);color:#fff;border:0;border-radius:12px;padding:13px;font:600 15px inherit;font-family:inherit;cursor:pointer}
+.msgs{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:10px;background:#f6f8fc}
+.m{max-width:78%;padding:9px 12px;border-radius:14px;font-size:14px;line-height:1.35;background:#fff;border:1px solid var(--line)}
+.m small{display:block;color:var(--mut);font-size:11px;margin-bottom:2px}
+.m.me{align-self:flex-end;background:var(--blue);color:#fff;border:0}
+.compose{display:flex;gap:8px;padding:10px 12px;border-top:1px solid var(--line);align-items:center}
+.compose input{flex:1;border:1px solid var(--line);border-radius:20px;padding:10px 14px;font:14px inherit;font-family:inherit;outline:0}
+.compose button{width:40px;height:40px;border-radius:50%;border:0;background:var(--blue);color:#fff;display:grid;place-items:center;cursor:pointer}
+.tile{display:flex;gap:14px;align-items:center;border-radius:16px;padding:12px;margin-bottom:12px;cursor:pointer;width:100%;border:0;text-align:left;font:inherit;color:inherit}
+.tile i{width:56px;height:56px;border-radius:14px;display:grid;place-items:center;color:#fff;flex:none}
+.tile i svg{width:26px;height:26px}.tile strong{display:block}.tile span{font-size:13px;color:var(--mut)}
+.tile .t{flex:1}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px}
+.card{border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-bottom:10px;width:100%;background:none;text-align:left;font:inherit;color:inherit;display:flex;align-items:center;cursor:pointer}
+.card .t{flex:1}.card strong{display:block;font-size:15px;margin-bottom:3px}.card span{font-size:13px;color:var(--mut)}
+label{display:block;font-size:13px;font-weight:600;margin:12px 0 5px}
+.f{width:100%;border:1px solid var(--line);border-radius:10px;padding:11px;font:14px inherit;font-family:inherit;background:#fff;color:var(--ink)}
+.toast{position:absolute;left:50%;bottom:90px;transform:translateX(-50%);background:#111a2b;color:#fff;padding:10px 16px;border-radius:20px;font-size:13px;opacity:0;transition:opacity .25s;pointer-events:none;white-space:nowrap}
+.toast.on{opacity:1}
+.login{justify-content:center;align-items:center;text-align:center;padding:0 28px;gap:10px}
+.login .logo{width:76px;height:76px;color:var(--blue);stroke-width:1.5}
+.login h1{font-size:34px;margin-top:4px}
+.login p{color:var(--mut);font-size:14px;margin-bottom:22px}
+.login a{color:var(--blue);font-size:14px;margin-top:8px;cursor:pointer}
+.pw{position:relative;width:100%}.pw input{padding-right:84px}.pw button{position:absolute;right:6px;top:50%;transform:translateY(-50%);background:none;border:0;color:var(--blue);font:600 13px inherit;font-family:inherit;cursor:pointer;padding:6px}
+.prof{display:flex;gap:14px;align-items:center;padding:8px 0 16px}.prof .av{width:72px;height:72px;font-size:26px}
+.side{position:fixed;left:0;top:0;bottom:0;width:230px;padding:24px 12px;color:var(--ink);font-size:14px}
+.help{max-width:260px;font-size:14px;line-height:1.5;color:var(--ink)}
+.help h2{font-size:18px;margin-bottom:8px}.help ol{padding-left:18px}.help li{margin-bottom:6px}
+.help button{margin-top:10px;background:var(--blue);color:#fff;border:0;border-radius:10px;padding:8px 12px;cursor:pointer;font:inherit}
+@media(max-width:760px){.help{display:none}body{padding:0}.phone{width:100%;height:100%;border:0;border-radius:0;max-height:none}}
+.tag{display:inline-block;background:var(--blue);color:#fff;font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;margin-bottom:8px}
+.acts .go{margin-left:auto;color:var(--blue);font-weight:600}.acts button.on{color:var(--blue)}
+.cm{border-top:1px solid var(--line);margin-top:10px;padding-top:10px}
+.cm .c{font-size:13px;line-height:1.35;margin-bottom:8px}.cm .c b{display:block;font-size:12px}
+.cm .in{display:flex;gap:6px}.cm .in input{flex:1;border:1px solid var(--line);border-radius:18px;padding:8px 12px;font:13px inherit;font-family:inherit;outline:0}
+.cm .in button{border:0;background:var(--blue);color:#fff;border-radius:18px;padding:0 14px;font:600 13px inherit;font-family:inherit;cursor:pointer}
+.m.ref{align-self:center;max-width:92%;background:var(--blue2);border:1px solid var(--blue);color:var(--ink);font-size:13px}
+.tag.g{background:var(--ok)}.acts .go.g{color:var(--ok)}
+.chips{display:flex;flex-wrap:wrap;gap:8px}.chips button{border:1px solid var(--line);background:#fff;border-radius:20px;padding:7px 14px;font:13px inherit;font-family:inherit;color:var(--ink);cursor:pointer}
+.chips button.on{background:var(--blue);color:#fff;border-color:var(--blue)}.chips button.on.g{background:var(--ok);border-color:var(--ok)}
+.ride{border:1px solid var(--line);border-radius:14px;padding:12px;margin-bottom:10px}.ride .h{display:flex;gap:10px;align-items:center}
+.seats{margin-left:auto;font-size:12px;font-weight:700;padding:4px 10px;border-radius:20px;background:#e8f7ef;color:var(--ok)}.seats.z{background:#fdeceb;color:var(--bad)}
+.ride .d{font-size:13px;color:var(--mut);margin:10px 0}.ride .btn{padding:9px;font-size:14px}.btn:disabled{background:#c7d0de;cursor:not-allowed}
+</style>
+</head>
+<body>
+<aside class="help">
+  <h2>Protótipo FATEC HUB</h2>
+  <p>Versão de média fidelidade. Clique nos elementos para navegar.</p>
+  <ol>
+    <li>Entre pelo login</li>
+    <li>Curta posts no Feed</li>
+    <li>Abra um chat e envie mensagem</li>
+    <li>Em Solicitações, veja Salas e Achados e Perdidos</li>
+    <li>Publique um objeto</li>
+  </ol>
+  <button onclick="go('login')">Reiniciar</button>
+</aside>
+
+<div class="phone" id="phone">
+  <div class="status"><span>9:41</span><span>●●● ▮</span></div>
+
+  <section class="screen login on" id="login">
+    <svg class="logo" viewBox="0 0 24 24"><path d="M22 10 12 5 2 10l10 5 10-5z"/><path d="M6 12v5c3 2.5 9 2.5 12 0v-5"/></svg>
+    <h1 class="brand">FATEC <b>HUB</b></h1>
+    <p>Conectando estudantes,<br>facilitando o seu dia a dia.</p>
+    <input class="f" id="mail" type="email" placeholder="E-mail institucional" value="maria.eduarda@fatec.sp.gov.br">
+    <div class="pw"><input class="f" id="pass" type="password" placeholder="Senha" value="senha123" onkeydown="if(event.key==='Enter')enter()"><button type="button" id="eye" onclick="eye()">Mostrar</button></div>
+    <button class="btn" onclick="enter()">Entrar</button>
+    <a onclick="toast('Link de redefinição enviado ao seu e-mail')">Esqueci minha senha</a>
+    <a onclick="toast('Procure a secretaria da sua unidade')">Precisa de ajuda?</a>
+  </section>
+
+  <section class="screen" id="feed">
+    <div class="top center"><span class="brand">FATEC <b>HUB</b></span></div>
+    <div class="body">
+      <div class="search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="q" placeholder="Buscar no feed..." oninput="filt()"></div>
+      <div id="posts"></div>
+    </div>
+    <button class="fab" aria-label="Criar post" onclick="go('newpost')"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>
+  </section>
+
+  <section class="screen" id="newpost">
+    <div class="top"><button onclick="go('feed')"><svg viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg></button>Nova postagem</div>
+    <div class="body">
+      <label>O que você quer compartilhar?</label>
+      <textarea class="f" id="npText" rows="5" placeholder="Escreva sua postagem..."></textarea>
+      <label>Tema (opcional)</label>
+      <div class="chips" id="chips">
+        <button class="on" onclick="pickTag(this,'')">Sem tag</button>
+        <button onclick="pickTag(this,'Carona')">Carona</button>
+        <button class="g" onclick="pickTag(this,'Salas')">Salas</button>
+        <button onclick="pickTag(this,'Achados e Perdidos')">Achados e Perdidos</button>
+      </div>
+    </div>
+    <div style="padding:0 16px 10px"><button class="btn" onclick="newPost()">Publicar</button></div>
+  </section>
+
+  <section class="screen" id="chats">
+    <div class="top"><h1>Chats</h1></div>
+    <div class="body">
+      <div class="search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>Buscar conversas...</div>
+      <div class="seg" id="chatSeg"><button class="on" onclick="seg(this,'pub')">Público</button><button onclick="seg(this,'priv')">Privado</button></div>
+      <div id="pub">
+        <button class="row" onclick="openC('Fatec Capão Bonito')"><div class="av b">F</div><div class="t"><strong>Fatec Capão Bonito</strong><span>Bora combinar a carona?</span></div><time>10:24</time></button>
+        <button class="row" onclick="openC('Carona')"><div class="av b">C</div><div class="t"><strong>Carona</strong><span>Você: Eu posso ir!</span></div><time>09:45</time></button>
+        <button class="row" onclick="openC('Interagro')"><div class="av b">I</div><div class="t"><strong>Interagro</strong><span>Alguém sabe se vai ter aula hoje?</span></div><time>08:30</time></button>
+        <button class="row" onclick="openC('Achados e Perdidos')"><div class="av b">A</div><div class="t"><strong>Achados e Perdidos</strong><span>Encontraram um celular na cantina.</span></div><time>Ontem</time></button>
+        <button class="row" onclick="openC('Turma SI')"><div class="av b">T</div><div class="t"><strong>Turma SI</strong><span>Ana: Vou chegar um pouco mais tarde</span></div><time>Ontem</time></button>
+      </div>
+      <div id="priv" hidden>
+        <button class="row" onclick="openC('Giovana')"><div class="av">G</div><div class="t"><strong>Giovana</strong><span>Te mando o material hoje</span></div><time>11:02</time></button>
+        <button class="row" onclick="openC('Lucas')"><div class="av">L</div><div class="t"><strong>Lucas</strong><span>Ótimo! Saio às 16h da FATEC.</span></div><time>10:22</time></button>
+      </div>
+    </div>
+    <button class="fab" onclick="toast('Nova conversa')"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>
+  </section>
+
+  <section class="screen" id="conversa">
+    <div class="top"><button onclick="go(backTo)"><svg viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg></button><div class="av b" id="cAv">C</div><div style="font-size:16px;line-height:1.2"><span id="cName">Carona</span><br><small id="cSub" style="font-weight:400;color:var(--mut);font-size:12px">12 membros</small></div></div>
+    <div class="msgs" id="msgs">
+      <div class="m"><small>Giovana</small>Alguém indo para o centro hoje?</div>
+      <div class="m me">Eu vou!</div>
+      <div class="m"><small>Lucas</small>Ótimo! Saio às 16h da FATEC.</div>
+      <div class="m me">Beleza, te encontro no ponto da frente.</div>
+    </div>
+    <div class="compose"><input id="msg" placeholder="Digite sua mensagem..." onkeydown="if(event.key==='Enter')send()"><button onclick="send()"><svg viewBox="0 0 24 24"><path d="m22 2-11 11M22 2l-7 20-4-9-9-4z"/></svg></button></div>
+  </section>
+
+  <section class="screen" id="carona">
+    <div class="top"><button onclick="go('solic')"><svg viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg></button>Carona</div>
+    <div class="body">
+      <div class="seg"><button class="on" onclick="cTab(this,0)">Oferecidas</button><button onclick="cTab(this,1)">Procuram</button></div>
+      <div id="rides"></div>
+    </div>
+    <div style="padding:0 16px 10px"><button class="btn" onclick="openC('Carona')">Ir ao grupo Carona</button></div>
+  </section>
+
+  <section class="screen" id="solic">
+    <div class="top"><h1>Solicitações</h1></div>
+    <div class="body">
+      <button class="tile" style="background:#eef4ff" onclick="go('carona')"><i style="background:#0a5fe0"><svg viewBox="0 0 24 24"><path d="M5 17h14M6 17l1.5-6h9L18 17M7 17v2M17 17v2"/></svg></i><div class="t"><strong>Carona</strong><span>Encontre ou ofereça caronas</span></div><svg viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></svg></button>
+      <button class="tile" style="background:#eaf8f1" onclick="go('salas')"><i style="background:#12a16a"><svg viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="1"/><path d="M12 3v18"/></svg></i><div class="t"><strong>Salas</strong><span>Verifique a disponibilidade</span></div><svg viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></svg></button>
+      <button class="tile" style="background:#f3edfd" onclick="go('salas');seg2('labs')"><i style="background:#7b47d6"><svg viewBox="0 0 24 24"><path d="M9 3h6M10 3v6l-5 9a2 2 0 0 0 2 3h10a2 2 0 0 0 2-3l-5-9V3"/></svg></i><div class="t"><strong>Laboratórios</strong><span>Consulte os laboratórios</span></div><svg viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></svg></button>
+      <button class="tile" style="background:#fff3e2" onclick="go('achados')"><i style="background:#e8962b"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></i><div class="t"><strong>Achados e Perdidos</strong><span>Encontre ou publique um objeto</span></div><svg viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></svg></button>
+    </div>
+  </section>
+
+  <section class="screen" id="salas">
+    <div class="top center"><button style="position:absolute;left:12px" onclick="go('solic')"><svg viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg></button>Salas</div>
+    <div class="body">
+      <div class="seg"><button class="on" id="sBtn" onclick="seg2('salas')">Salas</button><button id="lBtn" onclick="seg2('labs')">Labs</button></div>
+      <div id="lista"></div>
+    </div>
+  </section>
+
+  <section class="screen" id="achados">
+    <div class="top"><button onclick="go('solic')"><svg viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg></button>Achados e Perdidos</div>
+    <div class="body">
+      <div class="seg"><button class="on" onclick="objTab(this,0)">Perdi um objeto</button><button onclick="objTab(this,1)">Encontrei um objeto</button></div>
+      <div class="search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>Buscar objeto...</div>
+      <div id="objs">
+        <button class="row" onclick="toast('Contato: secretaria, bloco A')"><div class="av">🔑</div><div class="t"><strong>Chave</strong><span>Encontrado na cantina</span></div><time>20/04</time></button>
+        <button class="row" onclick="toast('Contato: secretaria, bloco A')"><div class="av">🎒</div><div class="t"><strong>Mochila</strong><span>Encontrada no bloco B</span></div><time>18/04</time></button>
+        <button class="row" onclick="toast('Contato: secretaria, bloco A')"><div class="av">📱</div><div class="t"><strong>Celular</strong><span>Encontrado no estacionamento</span></div><time>15/04</time></button>
+        <button class="row" onclick="toast('Contato: secretaria, bloco A')"><div class="av">👓</div><div class="t"><strong>Óculos</strong><span>Encontrados na sala 5</span></div><time>12/04</time></button>
+      </div>
+    </div>
+    <div style="padding:0 16px 10px"><button class="btn" onclick="go('novo')">+ Publicar um objeto</button></div>
+  </section>
+
+  <section class="screen" id="novo">
+    <div class="top"><button onclick="go('achados')"><svg viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg></button>Novo anúncio</div>
+    <div class="body">
+      <div class="seg"><button class="on" onclick="kind(this,0)">Perdi um objeto</button><button onclick="kind(this,1)">Encontrei um objeto</button></div>
+      <label>Nome do objeto</label><input class="f" id="nome" placeholder="Ex.: Celular, mochila...">
+      <label>Descrição</label><textarea class="f" rows="3" placeholder="Conte mais detalhes..."></textarea>
+      <label>Local</label><select class="f" id="nloc"><option>Selecione o local</option><option>Cantina</option><option>Bloco A</option><option>Bloco B</option><option>Estacionamento</option></select>
+      <label>Data aproximada</label><input class="f" placeholder="DD/MM/AAAA">
+      <label>Contato</label><input class="f" placeholder="E-mail ou telefone">
+    </div>
+    <div style="padding:0 16px 10px"><button class="btn" onclick="publish()">Publicar</button></div>
+  </section>
+
+  <section class="screen" id="perfil">
+    <div class="top"><h1>Perfil</h1></div>
+    <div class="body">
+      <div class="prof"><div class="av">ME</div><div><strong style="font-size:18px">Maria Eduarda</strong><br><small style="color:var(--mut)">maria.eduarda@fatec.sp.gov.br<br>Aluna • 3º TDS</small></div></div>
+      <button class="row" onclick="toast('Credenciais de acesso')"><div class="t"><strong>Credenciais de acesso</strong></div>›</button>
+      <button class="row" onclick="toast('Notificações')"><div class="t"><strong>Notificações</strong></div>›</button>
+      <button class="row" onclick="toast('Configurações')"><div class="t"><strong>Configurações</strong></div>›</button>
+      <button class="row" onclick="toast('FATEC HUB v1.0')"><div class="t"><strong>Sobre o app</strong></div>›</button>
+      <button class="row" onclick="go('login')" style="color:var(--bad)"><div class="t"><strong>Sair</strong></div></button>
+    </div>
+  </section>
+
+  <nav class="nav" id="nav" hidden>
+    <button data-t="feed" onclick="go('feed')"><svg viewBox="0 0 24 24"><path d="m3 11 9-8 9 8v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>Feed</button>
+    <button data-t="chats" onclick="go('chats')"><svg viewBox="0 0 24 24"><path d="M21 12a8 8 0 0 1-11.6 7.1L3 21l1.9-5.4A8 8 0 1 1 21 12z"/></svg>Chats</button>
+    <button data-t="solic" onclick="go('solic')"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="6" height="6" rx="1"/><rect x="14" y="4" width="6" height="6" rx="1"/><rect x="4" y="14" width="6" height="6" rx="1"/><rect x="14" y="14" width="6" height="6" rx="1"/></svg>Solicitações</button>
+    <button data-t="perfil" onclick="go('perfil')"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>Perfil</button>
+  </nav>
+  <div class="toast" id="toast"></div>
+</div>
+
+<script>
+var MAIN=['feed','chats','solic','perfil'];
+var DATA={salas:[['Sala 01',1],['Sala 02',0,'Em aula • 10:00 às 12:00'],['Sala 03',1],['Sala 04',1],['Sala 05',0,'Reservada • 13:00 às 15:00']],
+labs:[['Lab 01 – Informática',1],['Lab 02 – Redes',0,'Em aula • 08:00 às 10:00'],['Lab 03 – Hardware',1]]};
+function $(id){return document.getElementById(id)}
+var cur='login',backTo='chats';
+function go(id){
+  if(id!=='conversa')cur=id;
+  document.querySelectorAll('.screen').forEach(function(s){s.classList.toggle('on',s.id===id)});
+  $('nav').hidden=MAIN.indexOf(id)<0;
+  document.querySelectorAll('#nav button').forEach(function(b){b.classList.toggle('on',b.dataset.t===id)});
+  if(id==='salas')seg2('salas');
+  if(id==='carona')renderRides();
+  if(id==='conversa'){var m=$('msgs');m.scrollTop=m.scrollHeight}
+}
+function open_(id){go(id)}
+function enter(){var v=$('mail').value.trim();if(v.indexOf('@')<0){toast('Digite seu e-mail institucional');return}if($('pass').value.length<4){toast('Digite sua senha (mín. 4 caracteres)');return}go('feed')}
+function eye(){var p=$('pass'),s=p.type==='password';p.type=s?'text':'password';$('eye').textContent=s?'Ocultar':'Mostrar'}
+var ic={h:'<svg viewBox="0 0 24 24"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8z"/></svg>',c:'<svg viewBox="0 0 24 24"><path d="M21 12a8 8 0 0 1-11.6 7.1L3 21l1.9-5.4A8 8 0 1 1 21 12z"/></svg>',a:'<svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg>'};
+var P=[
+{u:'Ana Silva',t:'2h',tag:'Carona',chat:'Carona',x:'Alguém pra carona até o centro? <b>Saio às 16h da FATEC.</b>',l:12,cm:[['Lucas','Também vou! Posso dividir o combustível.'],['Giovana','Tem vaga pra mim?'],['Ana Silva','Tem sim, 16h no portão.']]},
+{u:'Lucas Oliveira',t:'4h',tag:'Salas',x:'Salas 12 e 13 disponíveis para estudos hoje à noite.',l:8,cm:[['Ana Silva','Vou usar a 12 às 19h!']]},
+{u:'Marcos Lima',t:'5h',tag:'Achados e Perdidos',chat:'Achados e Perdidos',x:'Perdi uma chave com chaveiro azul perto da cantina. Alguém viu?',l:5,cm:[['Ana Silva','Vi uma chave na cantina, fala com a secretaria.']]},
+{u:'Fatec Capão Bonito',org:1,t:'6h',tag:'Eventos',chat:'Fatec Capão Bonito',x:'Novo evento: Semana da Tecnologia na próxima semana!',l:41,cm:[['Maria Eduarda','Vou participar!']]},
+{u:'Beatriz Souza',t:'1d',tag:'',x:'Bom dia, pessoal! Alguém tem o material da aula de Banco de Dados de ontem?',l:3,cm:[['Lucas','Mando no grupo da turma!']]}
+];
+function renderFeed(){
+  $('posts').innerHTML=P.map(function(p,i){
+    return '<div class="post"><div class="who"><div class="av'+(p.org?' b':'')+'">'+p.u[0]+'</div><div><strong>'+p.u+'</strong><small>'+p.t+'</small></div></div>'
+    +(p.tag?'<span class="tag'+(p.tag==='Salas'?' g':'')+'">'+p.tag+'</span>':'')+'<p>'+p.x+'</p>'
+    +'<div class="acts"><button class="'+(p.liked?'liked':'')+'" onclick="like('+i+')">'+ic.h+p.l+'</button>'
+    +'<button class="'+(p.open?'on':'')+'" onclick="tgl('+i+')">'+ic.c+p.cm.length+'</button>'
+    +goBtn(p,i)+'</div>'
+    +(p.open?'<div class="cm">'+p.cm.map(function(c){return '<div class="c"><b>'+c[0]+'</b>'+c[1]+'</div>'}).join('')
+    +'<div class="in"><input id="ci'+i+'" placeholder="Escreva um comentário..." onkeydown="if(event.key===\'Enter\')addCm('+i+')"><button onclick="addCm('+i+')">Enviar</button></div></div>':'')
+    +'</div>';
+  }).join('');
+  filt();
+}
+function goBtn(p,i){
+  var a=ic.a.replace('<svg','<svg style="width:16px;height:16px"');
+  if(p.tag==='Salas')return '<button class="go g" onclick="go(\'salas\')">Ver salas '+a+'</button>';
+  if(p.chat)return '<button class="go" onclick="openC(\''+p.chat+'\','+i+')">Ir ao chat '+a+'</button>';
+  return '';
+}
+var npTag='';
+function pickTag(b,t){npTag=t;document.querySelectorAll('#chips button').forEach(function(x){x.classList.toggle('on',x===b)})}
+function newPost(){
+  var t=$('npText').value.trim();if(!t){toast('Escreva algo para publicar');return}
+  var chat={'Carona':'Carona','Achados e Perdidos':'Achados e Perdidos'}[npTag];
+  P.unshift({u:'Maria Eduarda',t:'agora',tag:npTag,chat:chat,x:t.replace(/&/g,'&amp;').replace(/</g,'&lt;'),l:0,cm:[]});
+  $('npText').value='';pickTag(document.querySelector('#chips button'),'');
+  go('feed');renderFeed();document.querySelector('#feed .body').scrollTop=0;toast('Postagem publicada!');
+}
+function like(i){var p=P[i];p.liked=!p.liked;p.l+=p.liked?1:-1;renderFeed()}
+function tgl(i){P[i].open=!P[i].open;renderFeed();if(P[i].open){var e=$('ci'+i);if(e)e.focus()}}
+function addCm(i){var e=$('ci'+i),t=e.value.trim();if(!t)return;P[i].cm.push(['Você',t]);renderFeed();var n=$('ci'+i);if(n)n.focus()}
+var ck='Carona';
+function S(a){return a.map(function(x){return x[0]==='>'?{me:1,t:x.slice(1)}:{w:x.split('|')[0],t:x.split('|').slice(1).join('|')}})}
+var H={
+'Carona':S(['Giovana|Alguém indo para o centro hoje?','>Eu vou!','Lucas|Ótimo! Saio às 16h da FATEC.','>Beleza, te encontro no ponto da frente.','Ana Silva|Tenho 3 lugares. Quem mais vai?','Camila|Eu vou! Posso dividir o combustível.','Ana Silva|Fechado, saímos às 16h em ponto.','Rafael|Eu estou indo para o Terminal às 17h30, se alguém precisar.','>Eu posso ir!']),
+'Fatec Capão Bonito':S(['Fatec Capão Bonito|Bom dia! A Semana da Tecnologia começa na segunda-feira.','Secretaria|As inscrições ficam abertas até sexta-feira pelo site.','Carlos|Vai ter certificado?','Fatec Capão Bonito|Sim, com 20h de atividades complementares.','>Vou me inscrever hoje!','Giovana|Bora combinar a carona?']),
+'Interagro':S(['Juliana|Alguém sabe se vai ter aula hoje?','Marcos|O professor avisou que sim, às 10h.','Juliana|Valeu! É na mesma sala de sempre?','>Confirmado, sala 4.','Marcos|Boa, até já!']),
+'Achados e Perdidos':S(['Carlos|Encontraram um celular na cantina.','Larissa|De que cor?','Carlos|Preto, com capinha transparente.','Larissa|Deve ser da Bea, vou avisar ela.','>Deixem na secretaria, é mais seguro!','Carlos|Combinado, já estou levando.']),
+'Turma SI':S(['Ana|Vou chegar um pouco mais tarde.','Lucas|Tranquilo, o professor só começa às 19h10.','Beatriz|Alguém tem o slide de Engenharia de Software?','>Mando agora no grupo.','Ana|Obrigada!','Lucas|Lembrando que a entrega do projeto é sexta.']),
+'Giovana':S(['Giovana|Oi, Maria! Te mando o material hoje.','>Perfeito, obrigada!','Giovana|Já enviei no seu e-mail, confere?','>Recebi! Ajudou muito.']),
+'Lucas':S(['Lucas|Ótimo! Saio às 16h da FATEC.','>Beleza, te encontro no ponto da frente.','Lucas|Combinado!'])
+};
+var REP=['Beleza!','Combinado 👍','Valeu!','Pode ser sim','Boa! Obrigado','Show, até lá!'];
+function renderMsgs(){
+  $('msgs').innerHTML=H[ck].map(function(m){
+    if(m.ref)return '<div class="m ref"><small>'+m.l+'</small>'+m.x+'</div>';
+    return '<div class="m'+(m.me?' me':'')+'">'+(m.me||!m.w?'':'<small>'+m.w+'</small>')+m.t+'</div>';
+  }).join('');
+  $('msgs').scrollTop=1e5;
+}
+function openC(name,i,r){
+  backTo=cur;
+  var pv=!!r||['Giovana','Lucas'].indexOf(name)>=0;
+  ck=r?name+'|'+r.l:name;
+  if(!H[ck]){
+    if(r){H[ck]=[{ref:1,l:r.l,x:r.x},{me:1,t:r.m||'Oi! Podemos conversar?'}];if(r.a)H[ck].push({t:r.a})}
+    else H[ck]=S(['FATEC HUB|Bem-vindo ao chat '+name+'.']);
+  }
+  if(i!==undefined&&!P[i].seen){P[i].seen=1;H[ck].push({ref:1,l:'Postagem de '+P[i].u,x:P[i].x})}
+  $('cName').textContent=name;$('cAv').textContent=name.charAt(0);$('cSub').textContent=pv?'Conversa privada':'12 membros';
+  renderMsgs();go('conversa');
+}
+function filt(){var q=$('q').value.toLowerCase();document.querySelectorAll('#feed .post').forEach(function(p){p.style.display=p.textContent.toLowerCase().indexOf(q)<0?'none':''})}
+function seg(btn,show){
+  btn.parentNode.querySelectorAll('button').forEach(function(b){b.classList.toggle('on',b===btn)});
+  if(show){$('pub').hidden=show!=='pub';$('priv').hidden=show!=='priv'}
+}
+function seg2(k){
+  $('sBtn').classList.toggle('on',k==='salas');$('lBtn').classList.toggle('on',k==='labs');
+  $('lista').innerHTML=DATA[k].map(function(r){
+    return '<button class="card" onclick="toast(\''+(r[1]?'Livre agora':r[2])+'\')"><div class="t"><strong>'+r[0]+'</strong><span><i class="dot" style="background:'+(r[1]?'var(--ok)':'var(--bad)')+'"></i>'+(r[1]?'Livre':'Ocupada')+'</span>'+(r[2]?'<br><span>'+r[2]+'</span>':'')+'</div>›</button>';
+  }).join('');
+}
+function send(){
+  var i=$('msg'),t=i.value.trim();if(!t)return;
+  H[ck].push({me:1,t:t.replace(/&/g,'&amp;').replace(/</g,'&lt;')});i.value='';renderMsgs();
+  var key=ck,pv=$('cSub').textContent==='Conversa privada',g=['Ana Silva','Lucas','Giovana','Camila'];
+  setTimeout(function(){
+    H[key].push({w:pv?'':g[Math.floor(Math.random()*4)],t:REP[Math.floor(Math.random()*REP.length)]});
+    if(ck===key)renderMsgs();
+  },1200);
+}
+var OBJ=[{n:'Chave',ic:'🔑',loc:'Encontrado na cantina',d:'20/04',u:'Carlos Mendes'},{n:'Mochila',ic:'🎒',loc:'Encontrada no bloco B',d:'18/04',u:'Juliana Rocha'},{n:'Celular',ic:'📱',loc:'Encontrado no estacionamento',d:'15/04',u:'Rafael Costa'},{n:'Óculos',ic:'👓',loc:'Encontrados na sala 5',d:'12/04',u:'Beatriz Souza'}];
+var OBJ2=[{n:'Chave com chaveiro azul',ic:'🔑',loc:'Perdida perto da cantina',d:'21/04',u:'Marcos Lima'},{n:'Garrafa térmica',ic:'🥤',loc:'Perdida na biblioteca',d:'19/04',u:'Larissa Alves'}];
+var oTab=0,nk=0;
+function renderObjs(){
+  var L=oTab?OBJ2:OBJ,v=oTab?'Perdido por ':'Achado por ';
+  $('objs').innerHTML=L.map(function(o,i){return '<button class="row" onclick="openObj('+i+')"><div class="av">'+o.ic+'</div><div class="t"><strong>'+o.n+'</strong><span>'+o.loc+' • '+v+o.u+'</span></div><time>'+o.d+'</time></button>'}).join('');
+}
+function objTab(b,k){seg(b);oTab=k;renderObjs()}
+function kind(b,k){seg(b);nk=k}
+function openObj(i){
+  var o=(oTab?OBJ2:OBJ)[i];if(o.u==='Você'){toast('Este anúncio é seu');return}
+  openC(o.u,undefined,{l:(oTab?'Objeto perdido: ':'Objeto achado: ')+o.n,x:o.loc+' • '+o.d,m:oTab?'Oi! Acho que encontrei o seu objeto.':'Oi! Acho que esse objeto é meu. Podemos combinar a devolução?',a:oTab?'Que bom! Onde você encontrou? Muito obrigado!':'Oi! Pode me descrever o objeto pra eu confirmar?'});
+}
+function publish(){
+  var n=$('nome').value.trim()||'Objeto',l=$('nloc').value,loc=l.indexOf('Selecione')===0?'Local não informado':l;
+  (nk?OBJ:OBJ2).unshift({n:n,ic:'📦',loc:loc,d:'Hoje',u:'Você'});
+  $('nome').value='';oTab=nk?0:1;
+  go('achados');
+  document.querySelectorAll('#achados .seg button').forEach(function(b,j){b.classList.toggle('on',j===oTab)});
+  renderObjs();toast('Publicado!');
+}
+var rt=0;
+var RD=[{u:'Ana Silva',from:'FATEC',to:'Centro',t:'16:00',s:3},{u:'Rafael Costa',from:'FATEC',to:'Terminal Rodoviário',t:'17:30',s:2},{u:'Camila Dias',from:'Estacionamento',to:'Itapeva',t:'18:00',s:1},{u:'Pedro Alves',from:'FATEC',to:'Vila Nova',t:'12:10',s:0}];
+var RQ=[{u:'Giovana Prado',from:'FATEC',to:'Centro',t:'16:00'},{u:'Lucas Oliveira',from:'FATEC',to:'Terminal Rodoviário',t:'17:00'}];
+function renderRides(){
+  $('rides').innerHTML=(rt?RQ:RD).map(function(r,i){
+    var seat=rt?'<span class="seats">Procura</span>':'<span class="seats'+(r.s?'':' z')+'">'+(r.s?r.s+(r.s>1?' lugares':' lugar'):'Lotada')+'</span>';
+    var btn=!rt&&!r.s?'<button class="btn" disabled>Sem lugares</button>':'<button class="btn" onclick="openRide('+i+')">'+(rt?'Oferecer carona':'Chat privado')+' com '+r.u.split(' ')[0]+'</button>';
+    return '<div class="ride"><div class="h"><div class="av">'+r.u[0]+'</div><div><strong>'+r.u+'</strong><small style="display:block;color:var(--mut);font-size:12px">Saída às '+r.t+'</small></div>'+seat+'</div><div class="d">'+r.from+' → '+r.to+'</div>'+btn+'</div>';
+  }).join('');
+}
+function cTab(b,k){seg(b);rt=k;renderRides()}
+function openRide(i){
+  var r=(rt?RQ:RD)[i];
+  openC(r.u,undefined,{l:'Carona • '+r.from+' → '+r.to,x:'Saída às '+r.t+(rt?'':' • '+r.s+(r.s>1?' lugares disponíveis':' lugar disponível')),m:rt?'Oi! Posso te dar carona nesse horário.':'Oi! Vi sua carona. Ainda tem lugar?',a:rt?'Perfeito! Te espero na entrada da FATEC.':'Tem sim! Saio às '+r.t+', no portão principal.'});
+}
+renderFeed();renderObjs();
+var tt;function toast(t){var e=$('toast');e.textContent=t;e.classList.add('on');clearTimeout(tt);tt=setTimeout(function(){e.classList.remove('on')},1800)}
+</script>
+</body>
+</html>
