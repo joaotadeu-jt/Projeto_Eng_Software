@@ -86,6 +86,20 @@ label{display:block;font-size:13px;font-weight:600;margin:12px 0 5px}
 .ride{border:1px solid var(--line);border-radius:14px;padding:12px;margin-bottom:10px}.ride .h{display:flex;gap:10px;align-items:center}
 .seats{margin-left:auto;font-size:12px;font-weight:700;padding:4px 10px;border-radius:20px;background:#e8f7ef;color:var(--ok)}.seats.z{background:#fdeceb;color:var(--bad)}
 .ride .d{font-size:13px;color:var(--mut);margin:10px 0}.ride .btn{padding:9px;font-size:14px}.btn:disabled{background:#c7d0de;cursor:not-allowed}
+.slot{display:flex;align-items:center;gap:10px;width:100%;border:1px solid var(--line);border-radius:12px;padding:11px 12px;margin-bottom:8px;background:#fff;font:inherit;color:inherit;text-align:left;cursor:pointer}
+.slot b{font-size:14px;min-width:96px}.slot span{font-size:13px;flex:1}.slot small{display:block;color:var(--mut);font-size:12px}
+.slot.free span{color:var(--ok)}.slot.busy{background:#f6f7fa;cursor:default}.slot.busy span{color:var(--bad)}
+.slot.pend{background:#fff8e6;border-color:#f0c36d;cursor:default}.slot.pend span{color:#9a6700}
+.slot.sel{border-color:var(--blue);background:var(--blue2)}
+.modal{position:absolute;inset:0;background:rgba(10,20,40,.55);display:grid;place-items:center;z-index:5;padding:24px}.modal[hidden]{display:none}
+.modal>div{background:#fff;border-radius:18px;padding:22px;text-align:center;width:100%}
+.modal .st{display:inline-block;background:#fff3d6;color:#9a6700;font-weight:700;font-size:13px;padding:6px 12px;border-radius:20px;margin:10px 0 14px}
+.btn.o{background:#fff;color:var(--blue);border:1px solid var(--blue)}
+.btn:disabled{opacity:.6}
+.bd{margin-left:auto;font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px;white-space:nowrap}
+.bd.g{background:#e8f7ef;color:var(--ok)}.bd.y{background:#fff3d6;color:#9a6700}.bd.b{background:var(--blue2);color:var(--blue)}
+.note{font-size:13px;color:var(--mut);margin-top:14px;line-height:1.4}
+.lnk{color:var(--blue);font-size:13px;cursor:pointer;display:inline-block;margin-top:8px}
 </style>
 </head>
 <body>
@@ -176,9 +190,42 @@ label{display:block;font-size:13px;font-weight:600;margin:12px 0 5px}
     <div class="top"><button onclick="go('solic')"><svg viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg></button>Carona</div>
     <div class="body">
       <div class="seg"><button class="on" onclick="cTab(this,0)">Oferecidas</button><button onclick="cTab(this,1)">Procuram</button></div>
+      <div class="search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="rq" placeholder="Buscar por destino ou saída..." oninput="renderRides()"></div>
       <div id="rides"></div>
     </div>
-    <div style="padding:0 16px 10px"><button class="btn" onclick="openC('Carona')">Ir ao grupo Carona</button></div>
+    <div style="padding:0 16px 10px;display:flex;gap:8px"><button class="btn" onclick="go('novacarona')">+ Criar carona</button><button class="btn o" onclick="openC('Carona')">Grupo Carona</button></div>
+  </section>
+
+  <section class="screen" id="sala">
+    <div class="top"><button onclick="go('salas');seg2(curKind)"><svg viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg></button><span id="rName"></span></div>
+    <div class="body">
+      <p style="font-size:13px;color:var(--mut);margin-bottom:10px">Escolha o dia e um horário livre. O uso depende da autorização da secretaria.</p>
+      <div class="chips" id="days"></div>
+      <label>Horários</label>
+      <div id="slots"></div>
+      <label>Motivo do uso (opcional)</label>
+      <input class="f" id="rWhy" placeholder="Ex.: Estudo em grupo, reunião do projeto...">
+    </div>
+    <div style="padding:0 16px 10px"><button class="btn" id="rBtn" onclick="reqRoom()" disabled>Solicitar agendamento</button></div>
+    <div class="modal" id="ok" hidden><div>
+      <svg viewBox="0 0 24 24" style="width:44px;height:44px;color:#c98a00"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+      <h2 style="font-size:18px;margin-top:6px">Solicitação enviada</h2>
+      <p id="okTxt" style="font-size:13px;color:var(--mut);margin-top:4px"></p>
+      <span class="st">Pendente de autorização da secretaria</span>
+      <button class="btn" onclick="$('ok').hidden=true">Entendi</button>
+    </div></div>
+  </section>
+
+  <section class="screen" id="novacarona">
+    <div class="top"><button onclick="go('carona')"><svg viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg></button>Criar carona</div>
+    <div class="body">
+      <div class="seg"><button class="on" onclick="rKind(this,0)">Ofereço carona</button><button onclick="rKind(this,1)">Procuro carona</button></div>
+      <label>Saída</label><input class="f" id="cFrom" placeholder="Ex.: FATEC, portão principal">
+      <label>Destino</label><input class="f" id="cTo" placeholder="Ex.: Centro, Terminal Rodoviário">
+      <label>Horário</label><input class="f" id="cTime" type="time" value="16:00">
+      <div id="seatWrap"><label>Lugares disponíveis</label><select class="f" id="cSeats"><option>1</option><option selected>2</option><option>3</option><option>4</option></select></div>
+    </div>
+    <div style="padding:0 16px 10px"><button class="btn" onclick="newRide()">Publicar</button></div>
   </section>
 
   <section class="screen" id="solic">
@@ -188,7 +235,55 @@ label{display:block;font-size:13px;font-weight:600;margin:12px 0 5px}
       <button class="tile" style="background:#eaf8f1" onclick="go('salas')"><i style="background:#12a16a"><svg viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="1"/><path d="M12 3v18"/></svg></i><div class="t"><strong>Salas</strong><span>Verifique a disponibilidade</span></div><svg viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></svg></button>
       <button class="tile" style="background:#f3edfd" onclick="go('salas');seg2('labs')"><i style="background:#7b47d6"><svg viewBox="0 0 24 24"><path d="M9 3h6M10 3v6l-5 9a2 2 0 0 0 2 3h10a2 2 0 0 0 2-3l-5-9V3"/></svg></i><div class="t"><strong>Laboratórios</strong><span>Consulte os laboratórios</span></div><svg viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></svg></button>
       <button class="tile" style="background:#fff3e2" onclick="go('achados')"><i style="background:#e8962b"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></i><div class="t"><strong>Achados e Perdidos</strong><span>Encontre ou publique um objeto</span></div><svg viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></svg></button>
+      <button class="tile" style="background:#e8f6f9" onclick="go('docs')"><i style="background:#0f8aa6"><svg viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></svg></i><div class="t"><strong>Documentos</strong><span>Solicite à secretaria</span></div><svg viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></svg></button>
+      <button class="tile" style="background:#fdeef3" onclick="go('uploads')"><i style="background:#d6336c"><svg viewBox="0 0 24 24"><path d="M12 16V4M7 9l5-5 5 5M4 20h16"/></svg></i><div class="t"><strong>Enviar documentos</strong><span>Atestados, matrícula e estágio</span></div><svg viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></svg></button>
     </div>
+  </section>
+
+  <section class="screen" id="docs">
+    <div class="top"><button onclick="go('solic')"><svg viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg></button>Documentos</div>
+    <div class="body">
+      <div class="seg" id="docSeg"><button class="on" onclick="docTab(this,0)">Solicitar</button><button onclick="docTab(this,1)">Meus pedidos</button></div>
+      <div id="docList"></div>
+    </div>
+  </section>
+
+  <section class="screen" id="docreq">
+    <div class="top"><button onclick="go('docs')"><svg viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg></button>Solicitar documento</div>
+    <div class="body">
+      <h2 id="dqName" style="font-size:18px"></h2>
+      <p class="note" id="dqSub" style="margin-top:4px"></p>
+      <label>Forma de entrega</label>
+      <div class="chips"><button class="on" onclick="seg(this)">Digital (PDF)</button><button onclick="seg(this)">Retirar na secretaria</button></div>
+      <label>Finalidade (opcional)</label>
+      <input class="f" id="dqWhy" placeholder="Ex.: Estágio, bolsa, plano de saúde...">
+      <p class="note">A secretaria analisa o pedido e avisa quando o documento estiver pronto.</p>
+    </div>
+    <div style="padding:0 16px 10px"><button class="btn" onclick="sendDoc()">Enviar solicitação</button></div>
+  </section>
+
+  <section class="screen" id="uploads">
+    <div class="top"><button onclick="go('solic')"><svg viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg></button>Enviar documentos</div>
+    <div class="body">
+      <div class="chips" style="margin-bottom:10px"><button class="on" onclick="upFilter(this,'Todos')">Todos</button><button onclick="upFilter(this,'Atestados')">Atestados</button><button onclick="upFilter(this,'Matrícula')">Matrícula</button><button onclick="upFilter(this,'Estágio')">Estágio</button></div>
+      <div id="upList"></div>
+    </div>
+    <div style="padding:0 16px 10px"><button class="btn" onclick="go('upform')">+ Enviar documento</button></div>
+  </section>
+
+  <section class="screen" id="upform">
+    <div class="top"><button onclick="go('uploads')"><svg viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg></button>Enviar documento</div>
+    <div class="body">
+      <label>Categoria</label>
+      <div class="chips"><button class="on" onclick="pickCat(this,'Atestados')">Atestados</button><button onclick="pickCat(this,'Matrícula')">Matrícula</button><button onclick="pickCat(this,'Estágio')">Estágio</button></div>
+      <label>Descrição</label>
+      <input class="f" id="upTitle" placeholder="Ex.: Atestado médico, termo de estágio...">
+      <label>Arquivo (PDF ou imagem)</label>
+      <input class="f" type="file" id="upFile" accept=".pdf,.jpg,.jpeg,.png" onchange="upPick(this)">
+      <p class="note" id="upName" style="margin-top:6px"></p>
+      <a class="lnk" onclick="upSample()">Usar arquivo de exemplo</a>
+    </div>
+    <div style="padding:0 16px 10px"><button class="btn" onclick="sendUp()">Enviar</button></div>
   </section>
 
   <section class="screen" id="salas">
@@ -261,6 +356,8 @@ function go(id){
   document.querySelectorAll('#nav button').forEach(function(b){b.classList.toggle('on',b.dataset.t===id)});
   if(id==='salas')seg2('salas');
   if(id==='carona')renderRides();
+  if(id==='docs')renderDocs();
+  if(id==='uploads')renderUploads();
   if(id==='conversa'){var m=$('msgs');m.scrollTop=m.scrollHeight}
 }
 function open_(id){go(id)}
@@ -336,16 +433,99 @@ function openC(name,i,r){
   $('cName').textContent=name;$('cAv').textContent=name.charAt(0);$('cSub').textContent=pv?'Conversa privada':'12 membros';
   renderMsgs();go('conversa');
 }
+function todayS(){var t=new Date();return ('0'+t.getDate()).slice(-2)+'/'+('0'+(t.getMonth()+1)).slice(-2)}
+var DOCS=[{n:'Histórico escolar',d:'Notas e disciplinas cursadas',p:'até 3 dias úteis'},{n:'Declaração de matrícula',d:'Comprova seu vínculo com o curso',p:'até 2 dias úteis'},{n:'Declaração para estágio',d:'Documento para a empresa concedente',p:'até 3 dias úteis'},{n:'Comprovante de frequência',d:'Presenças por disciplina',p:'até 3 dias úteis'},{n:'Ementas das disciplinas',d:'Conteúdo programático cursado',p:'até 5 dias úteis'}];
+var REQ=[{n:'Declaração de matrícula',d:'20/04',st:2,pr:'SEC-1021'},{n:'Histórico escolar',d:'22/04',st:1,pr:'SEC-1034'}];
+var STL=[['Solicitado','b'],['Em análise','y'],['Pronto','g']];
+var dt=0,curDoc=0,upCat='Atestados',upF='Todos',upS=false;
+var UP=[{n:'Atestado médico',f:'atestado_0412.pdf',cat:'Atestados',d:'12/04',st:'Aprovado'},{n:'Comprovante de matrícula',f:'matricula_2026.pdf',cat:'Matrícula',d:'15/04',st:'Em análise'},{n:'Termo de compromisso de estágio',f:'termo_estagio.pdf',cat:'Estágio',d:'19/04',st:'Enviado'}];
+function docTab(b,k){seg(b);dt=k;renderDocs()}
+function renderDocs(){
+  if(!dt){$('docList').innerHTML=DOCS.map(function(x,i){return '<button class="card" onclick="pickDoc('+i+')"><div class="t"><strong>'+x.n+'</strong><span>'+x.d+' • '+x.p+'</span></div>›</button>'}).join('');return}
+  $('docList').innerHTML=REQ.length?REQ.map(function(r,i){
+    var t=STL[r.st];
+    return '<div class="ride"><div class="h"><div><strong>'+r.n+'</strong><small style="display:block;color:var(--mut);font-size:12px">'+r.d+' • Protocolo '+r.pr+'</small></div><span class="bd '+t[1]+'">'+t[0]+'</span></div>'+(r.st===2?'<button class="btn" style="margin-top:10px;padding:9px;font-size:14px" onclick="toast(\'Download simulado: '+r.n+'.pdf\')">Baixar PDF</button>':'')+'</div>';
+  }).join(''):'<p class="note" style="text-align:center">Você ainda não fez pedidos.</p>';
+}
+function pickDoc(i){curDoc=i;$('dqName').textContent=DOCS[i].n;$('dqSub').textContent=DOCS[i].d+' • prazo: '+DOCS[i].p;$('dqWhy').value='';go('docreq')}
+function sendDoc(){
+  var pr='SEC-'+(1040+REQ.length*7);
+  REQ.unshift({n:DOCS[curDoc].n,d:todayS(),st:0,pr:pr});
+  dt=1;go('docs');
+  document.querySelectorAll('#docSeg button').forEach(function(b,j){b.classList.toggle('on',j===1)});
+  renderDocs();toast('Solicitação enviada! Protocolo '+pr);
+}
+function upFilter(b,c){seg(b);upF=c;renderUploads()}
+function pickCat(b,c){seg(b);upCat=c}
+function upPick(el){upS=false;$('upName').textContent=el.files[0]?'Arquivo selecionado: '+el.files[0].name:''}
+function upSample(){upS=true;$('upFile').value='';$('upName').textContent='Arquivo selecionado: documento_exemplo.pdf'}
+function renderUploads(){
+  var L=UP.filter(function(u){return upF==='Todos'||u.cat===upF});
+  $('upList').innerHTML=L.length?L.map(function(u){
+    var c=u.st==='Aprovado'?'g':u.st==='Em análise'?'y':'b';
+    return '<div class="row" style="cursor:default"><div class="av">📄</div><div class="t"><strong>'+u.n+'</strong><span>'+u.cat+' • '+u.d+' • '+u.f+'</span></div><span class="bd '+c+'">'+u.st+'</span></div>';
+  }).join(''):'<p class="note" style="text-align:center">Nenhum documento nesta categoria.</p>';
+}
+function sendUp(){
+  var f=$('upFile').files[0],fn=f?f.name:(upS?'documento_exemplo.pdf':'');
+  if(!fn){toast('Selecione um arquivo');return}
+  var t=$('upTitle').value.trim()||fn;
+  UP.unshift({n:t.replace(/&/g,'&amp;').replace(/</g,'&lt;'),f:fn.replace(/&/g,'&amp;').replace(/</g,'&lt;'),cat:upCat,d:todayS(),st:'Enviado'});
+  $('upFile').value='';$('upTitle').value='';$('upName').textContent='';upS=false;
+  upF='Todos';go('uploads');
+  document.querySelectorAll('#uploads .chips button').forEach(function(b,j){b.classList.toggle('on',j===0)});
+  toast('Documento enviado!');
+}
 function filt(){var q=$('q').value.toLowerCase();document.querySelectorAll('#feed .post').forEach(function(p){p.style.display=p.textContent.toLowerCase().indexOf(q)<0?'none':''})}
 function seg(btn,show){
   btn.parentNode.querySelectorAll('button').forEach(function(b){b.classList.toggle('on',b===btn)});
   if(show){$('pub').hidden=show!=='pub';$('priv').hidden=show!=='priv'}
 }
+var curKind='salas',curRoom='',curDay=0,selSlot=null,PEND={};
+var SL=['08:00–10:00','10:00–12:00','13:00–15:00','15:00–17:00','19:00–21:00'];
 function seg2(k){
+  curKind=k;
   $('sBtn').classList.toggle('on',k==='salas');$('lBtn').classList.toggle('on',k==='labs');
-  $('lista').innerHTML=DATA[k].map(function(r){
-    return '<button class="card" onclick="toast(\''+(r[1]?'Livre agora':r[2])+'\')"><div class="t"><strong>'+r[0]+'</strong><span><i class="dot" style="background:'+(r[1]?'var(--ok)':'var(--bad)')+'"></i>'+(r[1]?'Livre':'Ocupada')+'</span>'+(r[2]?'<br><span>'+r[2]+'</span>':'')+'</div>›</button>';
+  $('lista').innerHTML=DATA[k].map(function(r,i){
+    var pend=Object.keys(PEND).some(function(x){return x.indexOf(r[0]+'|')===0});
+    return '<button class="card" onclick="openRoom('+i+')"><div class="t"><strong>'+r[0]+'</strong><span><i class="dot" style="background:'+(r[1]?'var(--ok)':'var(--bad)')+'"></i>'+(r[1]?'Livre':'Ocupada')+'</span>'+(r[2]?'<br><span>'+r[2]+'</span>':'')+(pend?'<br><span style="color:#9a6700;font-weight:600">Pendente de autorização da secretaria</span>':'')+'</div>›</button>';
   }).join('');
+}
+function dayLbl(d){
+  var t=new Date();t.setDate(t.getDate()+d);
+  var wd=['dom','seg','ter','qua','qui','sex','sáb'],dd=('0'+t.getDate()).slice(-2)+'/'+('0'+(t.getMonth()+1)).slice(-2);
+  return (d===0?'Hoje':d===1?'Amanhã':wd[t.getDay()])+' '+dd;
+}
+function booked(room,day,sl){
+  var seed={'Sala 02|0|10:00–12:00':'Em aula • Algoritmos','Sala 05|0|13:00–15:00':'Reservada • Prof. Marcos','Lab 02 – Redes|0|08:00–10:00':'Em aula • Redes de Computadores'};
+  var k=room+'|'+day+'|'+sl;if(seed[k])return seed[k];
+  var h=0;for(var c=0;c<k.length;c++)h=(h*31+k.charCodeAt(c))%97;
+  return h%4===0?(h%8===0?'Em aula • Prof. Lima':'Reservada • Prof. Souza'):'';
+}
+function openRoom(i){
+  curRoom=DATA[curKind][i][0];curDay=0;selSlot=null;$('rName').textContent=curRoom;$('rWhy').value='';
+  renderDays();renderSlots();go('sala');
+}
+function renderDays(){
+  $('days').innerHTML=[0,1,2,3].map(function(d){return '<button class="'+(d===curDay?'on':'')+'" onclick="pickDay('+d+')">'+dayLbl(d)+'</button>'}).join('');
+}
+function pickDay(d){curDay=d;selSlot=null;renderDays();renderSlots()}
+function renderSlots(){
+  $('slots').innerHTML=SL.map(function(sl,j){
+    var b=booked(curRoom,curDay,sl),k=curRoom+'|'+curDay+'|'+sl;
+    if(b)return '<button class="slot busy"><b>'+sl+'</b><span>'+b+'</span></button>';
+    if(PEND[k])return '<button class="slot pend"><b>'+sl+'</b><span>Pendente de autorização da secretaria<small>'+PEND[k]+'</small></span></button>';
+    return '<button class="slot free'+(selSlot===j?' sel':'')+'" onclick="pickSlot('+j+')"><b>'+sl+'</b><span>'+(selSlot===j?'Selecionado':'Livre')+'</span></button>';
+  }).join('');
+  $('rBtn').disabled=selSlot===null;
+}
+function pickSlot(j){selSlot=j;renderSlots()}
+function reqRoom(){
+  if(selSlot===null)return;
+  var sl=SL[selSlot];
+  PEND[curRoom+'|'+curDay+'|'+sl]=$('rWhy').value.trim()||'Sem motivo informado';
+  $('okTxt').textContent=curRoom+' • '+dayLbl(curDay)+' • '+sl;
+  $('ok').hidden=false;selSlot=null;$('rWhy').value='';renderSlots();
 }
 function send(){
   var i=$('msg'),t=i.value.trim();if(!t)return;
@@ -380,12 +560,31 @@ function publish(){
 var rt=0;
 var RD=[{u:'Ana Silva',from:'FATEC',to:'Centro',t:'16:00',s:3},{u:'Rafael Costa',from:'FATEC',to:'Terminal Rodoviário',t:'17:30',s:2},{u:'Camila Dias',from:'Estacionamento',to:'Itapeva',t:'18:00',s:1},{u:'Pedro Alves',from:'FATEC',to:'Vila Nova',t:'12:10',s:0}];
 var RQ=[{u:'Giovana Prado',from:'FATEC',to:'Centro',t:'16:00'},{u:'Lucas Oliveira',from:'FATEC',to:'Terminal Rodoviário',t:'17:00'}];
+var rk=0;
+function rKind(b,k){seg(b);rk=k;$('seatWrap').hidden=!!k}
+function newRide(){
+  var from=$('cFrom').value.trim()||'FATEC',to=$('cTo').value.trim(),t=$('cTime').value;
+  if(!to){toast('Informe o destino');return}
+  if(!t){toast('Informe o horário');return}
+  var r={u:'Você',from:from,to:to,t:t};
+  if(!rk)r.s=+$('cSeats').value;
+  (rk?RQ:RD).unshift(r);rt=rk;
+  $('cFrom').value='';$('cTo').value='';$('rq').value='';
+  go('carona');
+  document.querySelectorAll('#carona .seg button').forEach(function(b,j){b.classList.toggle('on',j===rt)});
+  toast(rk?'Pedido de carona publicado!':'Carona publicada!');
+}
+function delRide(i){(rt?RQ:RD).splice(i,1);renderRides();toast('Removida')}
 function renderRides(){
-  $('rides').innerHTML=(rt?RQ:RD).map(function(r,i){
+  var q=($('rq').value||'').toLowerCase(),L=rt?RQ:RD,h='';
+  L.forEach(function(r,i){
+    if(q&&(r.to+' '+r.from).toLowerCase().indexOf(q)<0)return;
+    var me=r.u==='Você';
     var seat=rt?'<span class="seats">Procura</span>':'<span class="seats'+(r.s?'':' z')+'">'+(r.s?r.s+(r.s>1?' lugares':' lugar'):'Lotada')+'</span>';
-    var btn=!rt&&!r.s?'<button class="btn" disabled>Sem lugares</button>':'<button class="btn" onclick="openRide('+i+')">'+(rt?'Oferecer carona':'Chat privado')+' com '+r.u.split(' ')[0]+'</button>';
-    return '<div class="ride"><div class="h"><div class="av">'+r.u[0]+'</div><div><strong>'+r.u+'</strong><small style="display:block;color:var(--mut);font-size:12px">Saída às '+r.t+'</small></div>'+seat+'</div><div class="d">'+r.from+' → '+r.to+'</div>'+btn+'</div>';
-  }).join('');
+    var btn=me?'<button class="btn o" onclick="delRide('+i+')">Remover minha carona</button>':(!rt&&!r.s?'<button class="btn" disabled>Sem lugares</button>':'<button class="btn" onclick="openRide('+i+')">'+(rt?'Oferecer carona':'Chat privado')+' com '+r.u.split(' ')[0]+'</button>');
+    h+='<div class="ride"><div class="h"><div class="av">'+r.u[0]+'</div><div><strong>'+r.u+'</strong><small style="display:block;color:var(--mut);font-size:12px">Saída às '+r.t+'</small></div>'+seat+'</div><div class="d">'+r.from+' → '+r.to+'</div>'+btn+'</div>';
+  });
+  $('rides').innerHTML=h||'<p style="color:var(--mut);text-align:center;margin-top:24px">Nenhuma carona encontrada</p>';
 }
 function cTab(b,k){seg(b);rt=k;renderRides()}
 function openRide(i){
